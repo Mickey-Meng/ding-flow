@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snow.from.mapper.SysClickHouseMapper">
+
+
+    <insert id="insertTaskFrom" useGeneratedKeys="false">
+
+        insert into snow.task_from_info
+        (taskId,
+         formData,
+         formField,
+         processDefinitionId)
+        values (#{taskId},
+                #{formData},
+                #{formField},
+                #{processDefinitionId})
+
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snow.system.mapper.SysFormMenuMapper">
+
+    <resultMap type="SysFormMenu" id="SysFormMenuResult">
+            <result property="id"    column="id"    />
+            <result property="menuCode"    column="menu_code"    />
+            <result property="formCode"    column="form_code"    />
+    </resultMap>
+
+    <sql id="selectSysFormMenuVo">
+        select id, menu_code, form_code from sys_form_menu
+    </sql>
+
+    <select id="selectSysFormMenuList" parameterType="SysFormMenu" resultMap="SysFormMenuResult">
+        <include refid="selectSysFormMenuVo"/>
+        <where>
+                <if test="menuCode != null  and menuCode != ''"> and menu_code = #{menuCode}</if>
+                <if test="formCode != null  and formCode != ''"> and form_code = #{formCode}</if>
+        </where>
+     </select>
+
+    <select id="selectSysFormMenuById" parameterType="Long" resultMap="SysFormMenuResult">
+            <include refid="selectSysFormMenuVo"/>
+            where id = #{id}
+    </select>
+
+    <insert id="insertSysFormMenu" parameterType="SysFormMenu" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_form_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+              <if test="menuCode != null and menuCode != ''">menu_code,</if>
+              <if test="formCode != null and formCode != ''">form_code,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+               <if test="menuCode != null and menuCode != ''">#{menuCode},</if>
+               <if test="formCode != null and formCode != ''">#{formCode},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysFormMenu" parameterType="SysFormMenu">
+        update sys_form_menu
+        <trim prefix="SET" suffixOverrides=",">
+              <if test="menuCode != null and menuCode != ''">menu_code = #{menuCode},</if>
+              <if test="formCode != null and formCode != ''">form_code = #{formCode},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysFormMenuById" parameterType="Long">
+        delete from sys_form_menu where id = #{id}
+    </delete>
+
+    <delete id="deleteSysFormMenuByIds" parameterType="String">
+        delete from sys_form_menu where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

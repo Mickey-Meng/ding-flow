@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('我发起的流程')"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+
+    <input id="formCode" type="hidden" th:value="${formCode}"/>
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul id="ulSelect">
+
+                        <li>
+                            <label>考勤编码：</label>
+                            <input type="text" name="attendanceCode"/>
+                        </li>
+
+                        <li><a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                class="fa fa-search"></i>&nbsp;搜索</a><a class="btn btn-warning btn-rounded btn-sm"
+                                                                        onclick="$.form.reset()"><i
+                                class="fa fa-refresh"></i>&nbsp;重置</a></li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+
+</div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: select2-js"/>
+<script th:inline="javascript">
+    var prefixFlow = ctx + "formData";
+    var todoList = [[${@permission.hasPermi('flow:get:todoList')}]];
+    var transferTask = [[${@permission.hasPermi('flow:process:transferTask')}]];
+    var delegateTask = [[${@permission.hasPermi('flow:process:delegateTask')}]];
+    var processType = [[${@dict.getType('sys_process_type')}]];
+
+
+    function initColumn(formCode) {
+        var initColumnResult = [];
+        $.ajax({
+            url: "/formDataColumn",
+            data: {"formCode": formCode},
+            type: "post",
+            dataType: "json",
+            async: false,
+
+            success: function (result) {
+
+                if (result.length == 0) {
+                    $.modal.alertWarning("暂无数据");
+                    return;
+                }
+                console.log(result)
+                let ulSelectContent = "";
+                $.each(result, function (i, e) {
+
+
+
+                    console.log(e.selectFlag=='true');
+                    if (e.selectFlag == 'true') {
+
+                        ulSelectContent += "<li><label>" + e.title + ": </label> <input type='text' name='" + e.field + "'/></li>";
+                    }
+
+                })
+                ulSelectContent += "<li><a class=\"btn btn-primary btn-rounded btn-sm\" onclick=\"$.table.search()\"><i class=\"fa fa-search\"></i>&nbsp;搜索</a><a class=\"btn btn-warning btn-rounded btn-sm\" onclick=\"$.form.reset()\"><i class=\"fa fa-refresh\"></i>&nbsp;重置</a></li>\n";
+
+
+                $("#ulSelect").html(ulSelectContent);
+                console.log("result")
+                console.log(result.length)
+                result.unshift({
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return index + 1;
+                    }
+                });
+                initColumnResult = result
+                console.log(result);
+
+            }
+        })
+
+        initColumnResult.push({
+            title: '操作',
+            align: 'center',
+            formatter: function (value, row, index) {
+                console.log(row);
+                var actions = [];
+                var processType = row.processType;
+                actions.push('<a class="btn btn-warning btn-xs ' + delegateTask + '" href="javascript:void(0)" onclick="toFormRecordDetail(\'' + row.sysFormDataRecordId + '\')"><i class="fa fa-wifi"></i>详情</a> ');
+                actions.push('<a class="btn btn-primary btn-xs ' + transferTask + '" href="javascript:void(0)" onclick="updateFromPreview(\'' + row.sysFormDataRecordId + '\')"><i class="fa fa-tasks"></i>修改</a> ');
+                return actions.join('');
+            }
+        });
+        return initColumnResult;
+    }
+
+
+    $(function () {
+
+        let formCode = $("#formCode").val();
+
+
+        let initColumnResult = initColumn(formCode);
+
+
+        var options = {
+            id: "bootstrap-table",
+            formId: "formId",
+            url: "/formData?formCode=" + formCode,
+            striped: true,
+            showToggle: false,
+            where: {token: 'sasasas', id: 123},
+            request: {token: 'sasasas', id: 123}, //如果无需自定义请求参数，可不加该参数
+            loadingFontSize: 20,
+            showRefresh: false,                   // 是否显示刷新按钮
+            showColumns: false,                   // 是否显示隐藏某列下拉框
+            showToggle: false,
+            showSearch: false,                     // 是否显示检索信息
+            modalName: "我的待办",
+            columns: initColumnResult
+        };
+        $.table.init(options);
+    });
+
+    function cancelApiTask(taskId) {
+        var preViewUrl = prefixFlow + '/toFinishTask?taskId=' + taskId;
+        $.modal.openTab("审批", preViewUrl);
+    }
+
+    function cancelFormTask(taskId) {
+        var preViewUrl = 'toFinishTask?taskId=' + taskId;
+        $.modal.openTab("审批", preViewUrl);
+    }
+
+
+    function toFormRecordDetail(id) {
+        var detailUrl = "/toFormRecordDetail?id=" + id;
+        $.modal.openTab("表单详情", detailUrl);
+    }
+
+    function updateFromPreview(formDetailsId) {
+
+
+        var url = '/toFormRecordDetail?id=' + formDetailsId + '&flag=1';
+
+
+        let width;
+        let height;
+
+        var title = '设计器';
+        //如果是移动端，就使用自适应大小弹窗
+        if ($.common.isMobile()) {
+            width = 'auto';
+            height = 'auto';
+        }
+        if ($.common.isEmpty(title)) {
+            title = false;
+
+        }
+        if ($.common.isEmpty(url)) {
+            url = "/404.html";
+        }
+        if ($.common.isEmpty(width)) {
+            width = 800;
+        }
+        if ($.common.isEmpty(height)) {
+            height = ($(window).height() - 50);
+        }
+        var index = parent.layer.open({
+            type: 2,
+            area: [height + 'px', height + 'px'],
+            fix: false,
+            //不固定
+            maxmin: true,
+            shade: 0.3,
+            title: '流程设计器',
+            yes: function (res) {
+                console.log("qweqweqwe")
+                console.log(res)
+            },
+            content: url
+
+        });
+
+    }
+
+</script>
+</body>
+</html>

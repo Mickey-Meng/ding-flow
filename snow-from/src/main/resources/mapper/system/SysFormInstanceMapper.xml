@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snow.from.mapper.SysFormInstanceMapper">
+
+    <resultMap type="SysFormInstance" id="SysFormInstanceResult">
+        <result property="id" column="id"/>
+        <result property="formCode" column="form_code"/>
+        <result property="menuCode" column="menu_code"/>
+        <result property="formName" column="form_name"/>
+        <result property="fromUrl" column="from_url"/>
+        <result property="processKey" column="process_key"/>
+        <result property="dingProcessCode" column="ding_process_code"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="rev" column="rev"/>
+        <result property="isDelete" column="is_delete"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="fromContentHtml" column="from_content_html"/>
+
+    </resultMap>
+    <resultMap type="SysFormDataRecord" id="SysFormDataRecordResult">
+        <result property="id" column="id"/>
+        <result property="formId" column="form_id"/>
+        <result property="formNo" column="form_no"/>
+        <result property="formStatus" column="form_status"/>
+        <result property="formData" column="form_data"/>
+        <result property="formField" column="form_field"/>
+        <result property="formUrl" column="form_url"/>
+        <result property="belongUserId" column="belong_user_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="version" column="version"/>
+    </resultMap>
+
+    <sql id="selectSysFormInstanceVo">
+        select id,
+               form_code,
+               menu_code,
+               form_name,
+               from_url,
+               process_key,
+               create_by,
+               from_content_html,
+               create_time,
+               update_time,
+               update_by,
+               rev,
+               is_delete,
+               tenant_id
+        from sys_form_instance
+    </sql>
+    <select id="ListSysFormInstanceByFormCode" parameterType="String" resultMap="SysFormDataRecordResult">
+
+
+
+        SELECT any_value(temp.id)                       as id,
+               any_value(temp.form_no)                  as form_no,
+               any_value(temp.form_id)                  as form_id,
+               any_value(temp.form_status)              as form_status,
+               any_value(temp.form_field)               as form_field,
+               any_value(temp.form_data)                as form_data,
+               any_value(temp.form_url)                 as form_url,
+               any_value(temp.belong_user_id)           as belong_user_id,
+               any_value(temp.create_by)                as create_by,
+               any_value(temp.create_time)              as create_time,
+               any_value(temp.update_time)              as update_time,
+               any_value(temp.update_by)                as update_by,
+               any_value(temp.version)                  as version,
+               any_value(temp.ding_process_instance_id) as ding_process_instance_id,
+               any_value(temp.flow_id)                  as flow_id,
+               any_value(temp.task_name)                as task_name,
+               any_value(temp.task_version)             as task_version
+
+
+        FROM (
+                 SELECT sfdr.*
+                 FROM sys_form_data_record AS sfdr
+                          LEFT JOIN sys_form_instance AS sfi ON sfdr.form_id = sfi.id
+                 WHERE sfi.form_code = #{formCode}
+                   AND sfdr.task_version IS NOT NULL
+                 ORDER BY sfdr.task_version DESC LIMIT 200
+             ) AS temp
+        GROUP BY temp.flow_id
+    </select>
+
+
+    <select id="selectByMenuCode" parameterType="String" resultMap="SysFormInstanceResult">
+        select id,
+               form_code,
+               menu_code,
+               form_name,
+               from_url,
+               process_key,
+               create_by,
+               from_content_html,
+               create_time,
+               update_time,
+               update_by,
+               rev,
+               is_delete,
+               tenant_id
+        from sys_form_instance
+        where menu_code = #{menuCode}
+    </select>
+    <select id="selectCreateInfo" resultType="com.snow.from.service.impl.InformationSchema">
+
+        SELECT `table_schema`   as tableSchema,
+               `table_name`     as tableName,
+               `column_name`    as columnName,
+               `data_type`      as dataType,
+               `column_type`    as columnType,
+               `column_key`     as columnKey,
+               `column_comment` as columnComment
+        FROM information_schema.COLUMNS
+        where table_schema = #{table_schema}
+          and table_name = #{table_name}
+    </select>
+</mapper>

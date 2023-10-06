@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="ss"></div>
+</body>
+
+<script src="gc.spread.sheets.all.xx.x.x.min.js"></script>
+<script>
+    window.onload = function () {
+// Initialize a workbook
+        var workbook = new GC.Spread.Sheets.Workbook(document.getElementById('ss'), { sheetCount: 1 });
+
+
+        var sheet = spread.getSheet(0);
+//Setting Values - Text
+        sheet.setText(0,0,"This is a text");
+//Setting Values - Number
+        sheet.setValue(1, 0, 2245);
+        sheet.setValue(2, 0, 2245);
+//Setting Values - DateTime
+        sheet.setValue(3, 0, new Date(2020, 10, 7).toLocaleDateString('en-US');
+        sheet.getRange(3, 0, 1, 1).formatter("mm-dd-yyyy");
+        sheet.setColumnWidth(1, 200);
+        sheet.setColumnWidth(2, 200);
+        sheet.getRange(1, 1, 1, 2).backColor("rgb(130, 188, 0)").foreColor("rgb(255, 255, 255)");
+        sheet.getRange(3, 1, 1, 2).backColor("rgb(211, 211, 211)");
+        sheet.addSpan(1, 1, 1, 2);
+        sheet.getRange(1, 1, 4, 2).setBorder(new GC.Spread.Sheets.LineBorder("Black", GC.Spread.Sheets.LineStyle.thin), {
+            all: true
+        });
+        sheet.getRange(2, 1, 3, 2).setBorder(new GC.Spread.Sheets.LineBorder("Black", GC.Spread.Sheets.LineStyle.dotted), {
+            inside: true
+        });
+        sheet.getRange(1, 1, 1, 2).hAlign(GC.Spread.Sheets.HorizontalAlign.center);
+        var sheet = spread.getSheet(0);
+        var person = { name: 'Peter Winston', age: 25, gender: 'Male', address: { postcode: '10001' } };
+        var source = new GC.Spread.Sheets.Bindings.CellBindingSource(person);
+        sheet.setBindingPath(2, 2, 'name');
+        sheet.setBindingPath(3, 2, 'age');
+        sheet.setBindingPath(4, 2, 'gender');
+        sheet.setBindingPath(5, 2, 'address.postcode');
+        sheet.setDataSource(source);
+
+//Setting Formula, Sum of the A2 and A3 cell
+        sheet.setFormula(3, 3, '=SUM(A2:A3)');
+// get workbook object
+// var workbook = GC.Spread.Sheets.findControl(document.getElementById('ss'));
+    };
+</script>
+<link rel="stylesheet" href="gc.spread.sheets.xx.x.x.css"type="text/css"/>
+</html>

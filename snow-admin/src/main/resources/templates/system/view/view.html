@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <!-- bootstrap-table 表格插件样式 -->
+    <link th:href="@{/ajax/libs/bootstrap-table/bootstrap-table.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/animate.css}" rel="stylesheet"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+    <link th:href="@{/ruoyi/css/ry-ui.css}" rel="stylesheet"/>
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <style>
+        #tbody tr td {
+
+            height: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        #thead tr th {
+
+            height: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body class="white-bg">
+<div class="container-div" style="display: none;height: auto">
+    <div class="row">
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" style="width: 100%">
+                <thead class="" id="thead">
+                <tr style="height: 20px">
+                    <th style="text-align: center;">
+                        <div class="th-inner ">序号</div>
+                        <div class="fht-cell"></div>
+                    </th>
+
+                    <th style="text-align: center;">
+                        <div class="th-inner ">节点名称</div>
+                        <div class="fht-cell"></div>
+                    </th>
+                    <th style="text-align: center;">
+                        <div class="th-inner ">操作时间</div>
+                        <div class="fht-cell"></div>
+                    </th>
+                    <th style="text-align: center;">
+                        <div class="th-inner ">操作人</div>
+                        <div class="fht-cell"></div>
+                    </th>
+
+                    <th style="text-align: center; ">
+                        <div class="th-inner ">操作</div>
+                        <div class="fht-cell"></div>
+                    </th>
+
+                    <th style="text-align: center; ">
+                        <div class="th-inner ">详情</div>
+                        <div class="fht-cell"></div>
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="tbody">
+                <tr data-index="0" th:each="dict : ${historyTaskInfo}">
+                    <td style="" th:text="${dict.id}"></td>
+                    <td style=""><span class="badge badge-primary" th:text="${dict.nodeName}"></span></td>
+                    <td style="" th:text="${dict.endTime}"></td>
+                    <td style="" th:text="${dict.operationUserName}"></td>
+                    <td style="" th:text="${dict.operation}"></td>
+
+                    <td style="text-align: center; ">
+                        <a class="btn btn-primary btn-xs " href="javascript:void(0)" th:tag="${dict.descUrl}"
+                           onclick="openDtail(this)">详情</a>
+                    </td>
+                </tr>
+                </tbody>
+
+
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!--<div th:each="historyURL,historyStat:${historyFromdatilURL}" style="width: 1500px;">-->
+
+
+<!--    <iframe scrolling="auto" allowtransparency="true" id="layui-layer-iframe2" name="layui-layer-iframe2"-->
+<!--            onload="this.className='';" class="" frameborder="0" th:src="${historyURL}"-->
+<!--            style="height: 1065px;width: 1500px;">-->
+
+<!--    </iframe>-->
+<!--</div>-->
+
+
+<iframe scrolling="no" allowtransparency="true"
+        onload="this.className='';" class="" frameborder="0" th:src="${iframeUrl}"
+        style="height: 1065px;width: 100%;">
+
+</iframe>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: bootstrap-fileinput-js"/>
+<script th:inline="javascript">
+
+    $(function () {
+
+        var tbody = $("#tbody").html();
+        if (tbody != undefined) {
+            $(".container-div").css({display: "block"})
+        }
+
+    });
+
+    function closeTab() {
+        hbkrefresh();
+        $.modal.closeTab();
+        // 刷新本页面
+
+
+    }
+
+    function hbkrefresh() {
+
+
+        var target = $('.RuoYi_iframe[data-id="/flow/toDoMyTask"]', parent.document);
+        console.log("target")
+        console.log(target)
+
+        var url = target.attr('src');
+        console.log("url=" + url);
+        target.attr('src', url).ready();
+    }
+
+    function openDtail(info) {
+
+        var url = $(info).attr("tag");
+
+        layer.open({
+            type: 2,
+            shadeClose: true,
+            title: "消息详情",
+            area: ["70%", "80%"],
+            content: [url, 'yes']
+        })
+
+
+    }
+</script>
+</body>
+</html>
